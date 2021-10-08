@@ -1,6 +1,7 @@
 from datasets import load_from_disk
 import re
 
+DATASET_PATH = "/home/nithinholla/ami_single_headset_segmented_and_chunked"
 chars_to_ignore_regex = r'[\_\.\?\,\*\!\:\@]'
 
 
@@ -36,7 +37,7 @@ def get_vocab_list(data):
 
 if __name__ == "__main__":
 
-    ami = load_from_disk("/home/nithinholla/ami_single_headset_segmented_and_chunked")
+    ami = load_from_disk(DATASET_PATH)
 
     ami_text = ami.remove_columns('audio')
     initial_vocab_list = get_vocab_list(ami_text)
@@ -49,10 +50,16 @@ if __name__ == "__main__":
 
     print("Vocabulary after processing: {}".format(processed_vocab_list))
 
-    vocab_dict = {v: k for k, v in enumerate(processed_vocab_list)}
-    vocab_dict["|"] = vocab_dict[" "]
-    del vocab_dict[" "]
-    vocab_dict["<unk>"] = len(vocab_dict)
-    vocab_dict["<pad>"] = len(vocab_dict)
+    vocab_dict = {
+        "<pad>": 0,
+        "<s>": 1,
+        "</s>": 2,
+        "<unk>": 3,
+        "|": 4
+    }
+
+    for c in processed_vocab_list:
+        if c != " ":
+            vocab_dict[c] = len(vocab_dict)
 
     print(vocab_dict)
